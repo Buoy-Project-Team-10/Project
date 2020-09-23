@@ -1,0 +1,152 @@
+---
+title: "Buoy Project"
+author: "Chenghao Meng"
+date: "2020/9/22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE}
+library(tidyverse)
+
+# Make URLs
+url_1 = "http://www.ndbc.noaa.gov/view_text_file.php?filename=mlrf1h"
+url_2 = ".txt.gz&dir=data/historical/stdmet/"
+
+years = c(1987:2019)
+urls = str_c(url_1, years, url_2, sep = "")
+filenames = str_c("mr", years, sep = "")
+```
+
+
+```{r}
+# Read the data on the website
+for (i in 1:33){
+   suppressMessages(  
+    assign(filenames[i], read_table(urls[i], col_names = TRUE)
+  ))
+  
+  #file = get(filenames[i])
+  #colnames(file) = 
+    #c("YYYY","MM","DD","hh","WD","WSPD","GST","WVHT",
+      #"DPD ","APD","MWD","BAR","ATMP","WTMP","DEWP","VIS","TIDE")
+  
+}
+```
+
+Bind the data from 1987-1999.
+
+```{r}
+# Bind the data from 1987-1999
+
+for (i in 1988:1998)
+  mr_pre = rbind(mr1987,get(str_c("mr",i,sep = "")))
+
+# Change the row name
+names(mr_pre)[names(mr_pre) == "YY"] = "YYYY"
+
+mr87_99 = rbind(mr_pre,mr1999)
+if(mr87_99$YYYY<100){
+    mr87_99$YYYY = mr87_99$YYYY + 1900
+  }
+head(mr87_99)
+```
+
+Bind the data from 2000 to 2006.
+
+```{r}
+for (i in 2001:2004)
+  mr00_06 = rbind(mr2000,get(str_c("mr",i,sep = "")))
+
+head(mr00_06)
+```
+
+
+```{r}
+mr_pre_2 = rbind(mr2005,mr2006)
+mr_pre_2 = subset(mr_pre_2, select = -c(mm))
+mr00_06 = rbind(mr00_06,mr_pre_2)
+tail(mr00_06)
+```
+
+Bind the data from 2012 to 2019.
+
+```{r}
+for (i in 2012:2019)
+  mr11_19 = rbind(mr2011,get(str_c("mr",i,sep = "")))
+
+names(mr11_19)[names(mr11_19) == "#YY"] = "YYYY"
+mr11_19 = subset(mr11_19, select = -c(mm))
+mr11_19 = mr11_19[-1,]
+head(mr11_19)
+```
+
+Bind the data from 2007 to 2010.
+
+```{r}
+mr_pre_3 = rbind(mr2007,mr2009)
+mr_pre_4 = rbind(mr2008,mr2010)
+
+mr_pre_4 = subset(mr_pre_4, select = -c(PRES))
+names(mr_pre_4)[names(mr_pre_4) == "MWD"] = "MWD   PRES"
+
+mr07_10 = rbind(mr_pre_3,mr_pre_4)
+names(mr07_10)[names(mr07_10) == "#YY"] = "YYYY"
+mr07_10 = subset(mr07_10, select = -c(mm))
+mr07_10 = mr07_10[-1,]
+head(mr07_10)
+```
+
+Now we conmapre the differences in colum names between mr98_99 and mr00_06.
+
+```{r}
+colnames(mr87_99)
+colnames(mr00_06)
+```
+
+We do some adjustments and bind them to get the data from 1987 to 2006.
+
+```{r}
+# Add TIDE to mr87_99
+mr87_99$TIDE = c(rep(NA, times=nrow(mr87_99)))
+# Check the colnames of mr_1
+mr_1 = rbind(mr87_99,mr00_06)
+colnames(mr_1)
+```
+
+Bind the data from 2007 to 2019.
+
+```{r}
+mr_2 = rbind(mr07_10,mr11_19)
+colnames(mr_2)
+```
+
+```{r}
+mr_1 = subset(mr_1, select = -c(WD,BAR))
+mr_1 = mr_1[,-5]
+head(mr_1)
+```
+
+```{r}
+mr_2 = mr_2[,-5]
+names(mr_2)[names(mr_2) == "MWD   PRES"] = "MWD"
+head(mr_2)
+```
+
+So we bind mr_1 and mr_2 to get data from 1987-2019.
+
+```{r}
+mr = rbind(mr_1,mr_2)
+head(mr)
+```
+
+```{r}
+# Download the file
+write.table(mr,file="C:/Users/CH.Meng/Desktop/buoy.csv",
+            row.names=FALSE,col.names=TRUE,sep = ",")
+```
+
+

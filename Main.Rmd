@@ -1,0 +1,41 @@
+---
+title: "README"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Terminology Interpretion
+APD: Average Period
+ATMP: Air Temperature
+BAR: Sea level pressure. (Now denoted as PRES.) 
+DD: Day
+DEWP: Dewpoint temperature taken at the same height as the air temperature measurement
+DPD: Dominant wave period
+hh: Hour
+MM: Month
+MWD: The direction from which the waves at the dominant period (DPD) are coming. The units are degrees from true North, increasing clockwise, with North as 0 (zero) degrees and East as 90 degrees.
+VIS: Station visibility (nautical miles)
+WD: Wind direction (the direction the wind is coming from in degrees clockwise from true N) during the same period used for WSPD. (Now denoted as WDIR)
+WSPD: Wind speed (m/s) averaged over an eight-minute period for buoys and a two-minute period for land stations. 
+GST: Peak 5 or 8 second gust speed (m/s) measured during the eight-minute or two-minute period. 
+WTMP: Sea surface temperature (Celsius).  
+WVHT: Significant wave height (meters) is calculated as the average of the highest one-third of all of the wave heights during the 20-minute sampling period. 
+
+
+```{r}
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
