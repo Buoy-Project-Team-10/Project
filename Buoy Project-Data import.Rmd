@@ -23,17 +23,18 @@ filenames = str_c("mr", years, sep = "")
 
 
 ```{r}
+n = length(years)
 # Read the data on the website
-for (i in 1:33){
+for (i in 1:n){
    suppressMessages(  
-    assign(filenames[i], read_table(urls[i], col_names = TRUE)
+    assign(filenames[i], read_table2(urls[i], col_names = TRUE)
   ))
   
   #file = get(filenames[i])
   #colnames(file) = 
     #c("YYYY","MM","DD","hh","WD","WSPD","GST","WVHT",
       #"DPD ","APD","MWD","BAR","ATMP","WTMP","DEWP","VIS","TIDE")
-  
+
 }
 ```
 
@@ -90,9 +91,6 @@ Bind the data from 2007 to 2010.
 mr_pre_3 = rbind(mr2007,mr2009)
 mr_pre_4 = rbind(mr2008,mr2010)
 
-mr_pre_4 = subset(mr_pre_4, select = -c(PRES))
-names(mr_pre_4)[names(mr_pre_4) == "MWD"] = "MWD   PRES"
-
 mr07_10 = rbind(mr_pre_3,mr_pre_4)
 names(mr07_10)[names(mr07_10) == "#YY"] = "YYYY"
 mr07_10 = subset(mr07_10, select = -c(mm))
@@ -125,14 +123,15 @@ colnames(mr_2)
 ```
 
 ```{r}
-mr_1 = subset(mr_1, select = -c(WD,BAR))
-mr_1 = mr_1[,-5]
+PRES = c(rep(NA, times=nrow(mr_1)))
+mr_1 = cbind(mr_1[,1:11],PRES,mr_1[,12:ncol(mr_1)])
 head(mr_1)
 ```
 
 ```{r}
-mr_2 = mr_2[,-5]
-names(mr_2)[names(mr_2) == "MWD   PRES"] = "MWD"
+BAR = c(rep(NA, times=nrow(mr_2)))
+mr_2 = cbind(mr_2[,1:12],BAR,mr_2[,13:ncol(mr_2)])
+names(mr_2)[names(mr_2) == "WDIR"] = "WD"
 head(mr_2)
 ```
 
