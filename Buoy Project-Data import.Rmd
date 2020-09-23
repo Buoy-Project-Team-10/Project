@@ -8,6 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Data Collection
+
+To begin with,we need to collect data from the National Data Buoy Center (NDBC)-Station 4403.
 
 ```{r warning=FALSE}
 library(tidyverse)
@@ -22,23 +25,17 @@ filenames = str_c("mr", years, sep = "")
 ```
 
 
-```{r}
+```{r warning=FALSE}
 n = length(years)
 # Read the data on the website
 for (i in 1:n){
    suppressMessages(  
     assign(filenames[i], read_table2(urls[i], col_names = TRUE)
   ))
-  
-  #file = get(filenames[i])
-  #colnames(file) = 
-    #c("YYYY","MM","DD","hh","WD","WSPD","GST","WVHT",
-      #"DPD ","APD","MWD","BAR","ATMP","WTMP","DEWP","VIS","TIDE")
-
 }
 ```
 
-Bind the data from 1987-1999.
+## Bind the data from 1987-1999
 
 ```{r}
 # Bind the data from 1987-1999
@@ -56,7 +53,7 @@ if(mr87_99$YYYY<100){
 head(mr87_99)
 ```
 
-Bind the data from 2000 to 2006.
+## Bind the data from 2000 to 2006.
 
 ```{r}
 for (i in 2001:2004)
@@ -65,7 +62,6 @@ for (i in 2001:2004)
 head(mr00_06)
 ```
 
-
 ```{r}
 mr_pre_2 = rbind(mr2005,mr2006)
 mr_pre_2 = subset(mr_pre_2, select = -c(mm))
@@ -73,7 +69,7 @@ mr00_06 = rbind(mr00_06,mr_pre_2)
 tail(mr00_06)
 ```
 
-Bind the data from 2012 to 2019.
+## Bind the data from 2012 to 2019
 
 ```{r}
 for (i in 2012:2019)
@@ -85,7 +81,7 @@ mr11_19 = mr11_19[-1,]
 head(mr11_19)
 ```
 
-Bind the data from 2007 to 2010.
+# Bind the data from 2007 to 2010
 
 ```{r}
 mr_pre_3 = rbind(mr2007,mr2009)
@@ -98,7 +94,7 @@ mr07_10 = mr07_10[-1,]
 head(mr07_10)
 ```
 
-Now we conmapre the differences in colum names between mr98_99 and mr00_06.
+Now we conmapre the differences in column names between mr98_99 and mr00_06.
 
 ```{r}
 colnames(mr87_99)
@@ -115,7 +111,7 @@ mr_1 = rbind(mr87_99,mr00_06)
 colnames(mr_1)
 ```
 
-Bind the data from 2007 to 2019.
+## Bind the data from 2007 to 2019
 
 ```{r}
 mr_2 = rbind(mr07_10,mr11_19)
@@ -135,6 +131,8 @@ names(mr_2)[names(mr_2) == "WDIR"] = "WD"
 head(mr_2)
 ```
 
+## Get the data from 1987 to 2019
+
 So we bind mr_1 and mr_2 to get data from 1987-2019.
 
 ```{r}
@@ -144,8 +142,7 @@ head(mr)
 
 ```{r}
 # Download the file
-write.table(mr,file="C:/Users/CH.Meng/Desktop/buoy.csv",
-            row.names=FALSE,col.names=TRUE,sep = ",")
+write.table(mr,file="C:/Users/CH.Meng/Desktop/buoy.txt",row.names=FALSE,col.names=TRUE,sep = ",")
 ```
 
-
+Now we finish the data collection.
