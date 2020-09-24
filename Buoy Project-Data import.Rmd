@@ -77,7 +77,7 @@ for (i in 2012:2019)
 
 names(mr11_19)[names(mr11_19) == "#YY"] = "YYYY"
 mr11_19 = subset(mr11_19, select = -c(mm))
-mr11_19 = mr11_19[-1,]
+mr11_19 = mr11_19[-1,] # Delete the row with #YY etc.
 head(mr11_19)
 ```
 
@@ -90,7 +90,7 @@ mr_pre_4 = rbind(mr2008,mr2010)
 mr07_10 = rbind(mr_pre_3,mr_pre_4)
 names(mr07_10)[names(mr07_10) == "#YY"] = "YYYY"
 mr07_10 = subset(mr07_10, select = -c(mm))
-mr07_10 = mr07_10[-1,]
+mr07_10 = mr07_10[-1,] # Delete the row with #YY etc.
 head(mr07_10)
 ```
 
@@ -156,7 +156,7 @@ Before making summary of the data, data type of certain columns should be transf
 # Data type transformation
 for (i in 5:ncol(mr))
   suppressMessages(
-    as.numeric(mr[,i])
+    mr[,i] <- as.numeric(mr[,i])
     )
 ```
 
@@ -165,11 +165,9 @@ Since "9999","999" and "99" in the dataset provide us with no specific informati
 ```{r}
 for (i in 1:ncol(mr))
   mr[,i][which(mr[,i]==9999|mr[,i]==999|mr[,i]==99)] = NA
-
-
 ```
 
-Now we can have the summary of the dataset-mr.
+Now we can have the summary of the dataset-mr, which will be transformed to tibble.
 ```{r}
 # Summary of mr_tib
 mr_tib = as_tibble(mr)
@@ -233,4 +231,38 @@ ggplot(data = mr_tib2) +
   geom_histogram(mapping = aes(x=WTMP),binwidth = 0.5)
 ```
 
+
+### 2.2.2 Conduct the imputation 
+According to the plots above, we will replace NA with median.
+
+```{r}
+mr_tib2[is.na(mr_tib2$WD),"WD"] =
+  median(mr_tib2$WD,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$WSPD),"WSPD"] =
+  median(mr_tib2$WSPD,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$GST),"GST"] =
+  median(mr_tib2$GST,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$ATMP),"ATMP"] =
+  median(mr_tib2$ATMP,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$WTMP),"WTMP"] =
+  median(mr_tib2$WTMP,na.rm = T)
+```
+
+Then we will use the summary() to check if NA still existed.
+```{r}
+# Check the NA
+summary(mr_tib2)
+```
+The summary indicates that no existed NA, the data can be used for further analysis.
+
+## 2.3 Filter the dataset
+
+Make data type transformation to Year, Month, Day and Hour. 
+```{r}
+
+```
 
