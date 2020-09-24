@@ -232,3 +232,5 @@ ggplot(data = mr_tib2) +
 ggplot(data = mr_tib2) + 
   geom_histogram(mapping = aes(x=WTMP),binwidth = 0.5)
 ```
+
+
