@@ -35,7 +35,7 @@ for (i in 1:n){
 }
 ```
 
-### 1.1 Bind the data from 1987-1999
+### 1.1 Bind the Data from 1987-1999
 
 ```{r message=TRUE}
 # Bind the data from 1987-1999
@@ -56,7 +56,7 @@ if(mr87_99$YYYY<100){
 head(mr87_99)
 ```
 
-### 1.2 Bind the data from 2000 to 2006
+### 1.2 Bind the Data from 2000 to 2006
 
 ```{r}
 for (i in 2000:2004){
@@ -75,7 +75,7 @@ mr00_06 = rbind(mr00_06,mr_pre_2)
 tail(mr00_06)
 ```
 
-### 1.3 Bind the data from 2012 to 2019
+### 1.3 Bind the Data from 2012 to 2019
 
 ```{r}
 for (i in 2011:2019){
@@ -90,7 +90,7 @@ mr11_19 = mr11_19[-1,] # Delete the row with #YY etc.
 head(mr11_19)
 ```
 
-### 1.4 Bind the data from 2007 to 2010
+### 1.4 Bind the Data from 2007 to 2010
 
 ```{r}
 mr_pre_3 = rbind(mr2007,mr2009)
@@ -120,7 +120,7 @@ mr_1 = rbind(mr87_99,mr00_06)
 colnames(mr_1)
 ```
 
-### 1.5 Bind the data from 2007 to 2019
+### 1.5 Bind the Data from 2007 to 2019
 
 ```{r}
 mr_2 = rbind(mr07_10,mr11_19)
@@ -140,7 +140,7 @@ names(mr_2)[names(mr_2) == "WDIR"] = "WD"
 head(mr_2)
 ```
 
-### 1.6 Get the data from 1987 to 2019
+### 1.6 Get the Data from 1987 to 2019
 
 So we bind mr_1 and mr_2 to get data from 1987-2019.
 
@@ -157,7 +157,7 @@ write.table(mr,file="C:/Users/CH.Meng/Desktop/buoy.txt",row.names=FALSE,col.name
 Now we finish the data collection.
 
 ## 2 Exploratory Data Analysis
-### 2.1 Summary of the dataset
+### 2.1 Summary of the Dataset
 
 Before making summary of the data, data type of certain columns should be transformed to numeric data.
 
@@ -201,11 +201,11 @@ dim(mr_tib2)
 summary(mr_tib2)
 ```
 
-### 2.2 Imputation of the dataset
+### 2.2 Imputation of the Dataset
 
 First, we will make histograms to explore the distribution of the columns.
 
-#### 2.2.1 Histograms of the columns
+#### 2.2.1 Histograms of the Columns
 ```{r}
 # Hist. of WD
 ggplot(data = mr_tib2) + 
@@ -241,7 +241,7 @@ ggplot(data = mr_tib2) +
 ```
 
 
-#### 2.2.2 Conduct the imputation 
+#### 2.2.2 Conduct the Imputation 
 According to the plots above, we will replace NA with median.
 
 ```{r}
@@ -268,7 +268,7 @@ summary(mr_tib2)
 ```
 The summary indicates that no existed NA, the data can be used for further analysis.
 
-### 2.3 Filter the dataset
+### 2.3 Filter the Dataset
 
 Make data type transformation on columns for Year, Month, Day and Hour. 
 
@@ -299,9 +299,9 @@ q3<-subset(mr_tib2,quarter(mr_tib2$date)==3)
 q4<-subset(mr_tib2,quarter(mr_tib2$date)==4)
 ```
 
-### 2.4 Explore the pattern
+### 2.4 Explore the Pattern
 
-#### 2.4.1 Air temperature pattern
+#### 2.4.1 Air Temperature Pattern
 
 Calculate each quarter's mean air temperature by year, and plot the patterns:
 ```{r message=FALSE}
@@ -357,7 +357,7 @@ ggarrange(m9reg,m10reg,m11reg,m12reg,ncol=2,nrow=2)
 
   From the plots listed above, it is shown that the average air temperature of each quarter in a year all increased throughout the past 30 years. Though by month the patterns are more variable, generally they all had an increasing tendency. 
 
-#### 2.4.2 Water temperature pattern
+#### 2.4.2 Water Temperature Pattern
 
 Calculate each quarter's mean water temperature by year, and plot the patterns:
 ```{r message=FALSE}
@@ -409,13 +409,42 @@ ggarrange(m1reg_w,m2reg_w,m3reg_w,m4reg_w,ncol=2,nrow=2)
 ggarrange(m5reg_w,m6reg_w,m7reg_w,m8reg_w,ncol=2,nrow=2)
 ```
 
-  It is very interesting to look at the plot of water temperature. The average water temperature of Q3 is shown that there was a drastic decrease  since 2010, while compared to air temperature, there was a drastic increase in quarter 3 since 2010. However, in other quarters of the year, air temperature and water temperature didn't show a significant negative correlation. This might leads to further exploration in the variation of a
+It is very interesting to look at the plot of water temperature. The average water temperature of Q3 is shown that there was a drastic decrease  since 2010, while compared to air temperature, there was a drastic increase in quarter 3 since 2010. 
+
+However, in other quarters of the year, air temperature and water temperature didn't show a significant negative correlation. This might leads to further exploration in the variation of air temperature and the correlation with water temperature.
 
 ## 3 Model Analysis
 
 Based on the result of pattern exploration in previous part, we are going to use linear model to fit the model between temperature and year.
 
-### 3.1 Air temperature
+### 3.1 Stationarity Test
+
+First, we use ACF function to visualize the stationarity of the air and water temperature.
+```{r}
+# ACF of air temp.
+par(mfrow=c(2,2))
+acf(meanq1$ATMP,xlab="Lag-Air Temp. Q1")
+acf(meanq2$ATMP,xlab="Lag-Air Temp. Q2")
+acf(meanq3$ATMP,xlab="Lag-Air Temp. Q3")
+acf(meanq4$ATMP,xlab="Lag-Air Temp. Q4")
+```
+
+From the ACF plots above, we can see that the pattern of air tmperature performs like white noise, so we can conclude that the time series of air temperature is stationary.
+
+```{r}
+# ACF of water temp.
+par(mfrow=c(2,2))
+acf(meanq1_w$WTMP,xlab="Lag-Water Temp. Q1")
+acf(meanq2_w$WTMP,xlab="Lag-Water Temp. Q2")
+acf(meanq3_w$WTMP,xlab="Lag-Water Temp. Q3")
+acf(meanq4_w$WTMP,xlab="Lag-Water Temp. Q4")
+```
+
+From the ACF plots above, we can see that the pattern of water tmperature performs like white noise, so we can conclude that the time series of water temperature is stationary.
+
+Then we can strat to bulid models on those two features.
+
+### 3.2 Air Temperature
 ```{r}
 # Fit the model of Air Temp.
 air_q1 = lm(ATMP~YYYY,data = meanq1)
@@ -423,6 +452,7 @@ air_q2 = lm(ATMP~YYYY,data = meanq2)
 air_q3 = lm(ATMP~YYYY,data = meanq3)
 air_q4 = lm(ATMP~YYYY,data = meanq4)
 ```
+
 
 ```{r}
 data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
@@ -434,8 +464,8 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 
 ```
 
-### 3.2 Water Temperature
-ir temperature and the correlation with water temperature.
+### 3.3 Water Temperature
+
 ```{r}
 # Fit the model of Air Temp.
 water_q1 = lm(WTMP~YYYY,data = meanq1_w)
@@ -453,6 +483,8 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
            )
 ```
 
-### 3.3 Conclusion
+### 3.4 Conclusion
 
-From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. Also, the reason behind the variation of average air temperature is valuable to be digged in. 
+From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. 
+
+Also, the reason behind the variation of average air temperature is valuable to be digged in. 
