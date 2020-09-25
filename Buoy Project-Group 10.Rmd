@@ -61,7 +61,7 @@ head(mr87_99)
 ```{r}
 for (i in 2000:2004){
     if (i==2000)
-    mr_00_06<-mr2000
+    mr00_06<-mr2000
     else
     mr00_06 = rbind(mr00_06,get(str_c("mr",i,sep = "")))
 }
