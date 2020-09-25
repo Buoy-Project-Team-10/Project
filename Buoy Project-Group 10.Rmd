@@ -1,0 +1,453 @@
+---
+title: "Buoy Project"
+author: "Chenghao Meng,Yinfeng Zhou and Feng Fan"
+date: "2020/9/25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## 1 Data Collection
+
+To begin with,we need to collect data from the National Data Buoy Center (NDBC)-Station 4403.
+
+```{r warning=FALSE}
+library(tidyverse)
+
+# Make URLs
+url_1 = "http://www.ndbc.noaa.gov/view_text_file.php?filename=mlrf1h"
+url_2 = ".txt.gz&dir=data/historical/stdmet/"
+
+years = c(1987:2019)
+urls = str_c(url_1, years, url_2, sep = "")
+filenames = str_c("mr", years, sep = "")
+```
+
+
+```{r warning=FALSE}
+n = length(years)
+# Read the data on the website
+for (i in 1:n){
+   suppressMessages(  
+    assign(filenames[i], read_table2(urls[i], col_names = TRUE)
+  ))
+}
+```
+
+### 1.1 Bind the data from 1987-1999
+
+```{r message=TRUE}
+# Bind the data from 1987-1999
+
+for (i in 1987:1998){
+  if (i==1987)
+    mr_pre<-mr1987
+  else
+    mr_pre = rbind(mr_pre,get(str_c("mr",i,sep = "")))
+}
+# Change the row name
+names(mr_pre)[names(mr_pre) == "YY"] = "YYYY"
+
+mr87_99 = rbind(mr_pre,mr1999)
+if(mr87_99$YYYY<100){
+    mr87_99$YYYY = mr87_99$YYYY + 1900
+  }
+head(mr87_99)
+```
+
+### 1.2 Bind the data from 2000 to 2006
+
+```{r}
+for (i in 2000:2004){
+    if (i==2000)
+    mr00_06<-mr2000
+    else
+    mr00_06 = rbind(mr00_06,get(str_c("mr",i,sep = "")))
+}
+head(mr00_06)
+```
+
+```{r}
+mr_pre_2 = rbind(mr2005,mr2006)
+mr_pre_2 = subset(mr_pre_2, select = -c(mm))
+mr00_06 = rbind(mr00_06,mr_pre_2)
+tail(mr00_06)
+```
+
+### 1.3 Bind the data from 2012 to 2019
+
+```{r}
+for (i in 2011:2019){
+  if(i==2011)
+    mr11_19<-mr2011
+  else
+    mr11_19 = rbind(mr11_19,get(str_c("mr",i,sep = "")))
+}
+names(mr11_19)[names(mr11_19) == "#YY"] = "YYYY"
+mr11_19 = subset(mr11_19, select = -c(mm))
+mr11_19 = mr11_19[-1,] # Delete the row with #YY etc.
+head(mr11_19)
+```
+
+### 1.4 Bind the data from 2007 to 2010
+
+```{r}
+mr_pre_3 = rbind(mr2007,mr2009)
+mr_pre_4 = rbind(mr2008,mr2010)
+
+mr07_10 = rbind(mr_pre_3,mr_pre_4)
+names(mr07_10)[names(mr07_10) == "#YY"] = "YYYY"
+mr07_10 = subset(mr07_10, select = -c(mm))
+mr07_10 = mr07_10[-1,] # Delete the row with #YY etc.
+head(mr07_10)
+```
+
+Now we conmapre the differences in column names between mr98_99 and mr00_06.
+
+```{r}
+colnames(mr87_99)
+colnames(mr00_06)
+```
+
+We do some adjustments and bind them to get the data from 1987 to 2006.
+
+```{r}
+# Add TIDE to mr87_99
+mr87_99$TIDE = c(rep(NA, times=nrow(mr87_99)))
+# Check the colnames of mr_1
+mr_1 = rbind(mr87_99,mr00_06)
+colnames(mr_1)
+```
+
+### 1.5 Bind the data from 2007 to 2019
+
+```{r}
+mr_2 = rbind(mr07_10,mr11_19)
+colnames(mr_2)
+```
+
+```{r}
+PRES = c(rep(NA, times=nrow(mr_1)))
+mr_1 = cbind(mr_1[,1:11],PRES,mr_1[,12:ncol(mr_1)])
+head(mr_1)
+```
+
+```{r}
+BAR = c(rep(NA, times=nrow(mr_2)))
+mr_2 = cbind(mr_2[,1:12],BAR,mr_2[,13:ncol(mr_2)])
+names(mr_2)[names(mr_2) == "WDIR"] = "WD"
+head(mr_2)
+```
+
+### 1.6 Get the data from 1987 to 2019
+
+So we bind mr_1 and mr_2 to get data from 1987-2019.
+
+```{r}
+mr = rbind(mr_1,mr_2)
+head(mr)
+```
+
+```{r eval=FALSE}
+# Download the file
+write.table(mr,file="C:/Users/CH.Meng/Desktop/buoy.txt",row.names=FALSE,col.names=TRUE,sep = ",")
+```
+
+Now we finish the data collection.
+
+## 2 Exploratory Data Analysis
+### 2.1 Summary of the dataset
+
+Before making summary of the data, data type of certain columns should be transformed to numeric data.
+
+```{r message=FALSE, warning=FALSE}
+# Data type transformation
+for (i in 5:ncol(mr))
+  suppressMessages(
+    mr[,i] <- as.numeric(mr[,i])
+    )
+```
+
+Since "9999","999" and "99" in the dataset provide us with no specific information, we will replace those with NA.
+
+```{r}
+for (i in 1:ncol(mr))
+  mr[,i][which(mr[,i]==9999|mr[,i]==999|mr[,i]==99)] = NA
+```
+
+Now we can have the summary of the dataset-mr, which will be transformed to tibble.
+```{r}
+# Summary of mr_tib
+mr_tib = as_tibble(mr)
+summary(mr_tib)
+```
+
+From the summary, we can see that there is no much variation in column WVHT, DPD, APD, MWD, DEWP, VIS and TIDE, and column PRES and BAR also contains a lot of NA's.
+
+Since those columns cannot provide us with a lot of information, we will drop them for further analysis.
+
+```{r}
+# Drop the columns
+mr_tib2 = mr_tib %>% 
+  select(-WVHT, -DPD, -APD, -MWD, -DEWP, -VIS,
+         -TIDE,-PRES,-BAR)
+dim(mr_tib2)
+```
+
+
+```{r}
+# Summary of mr_tib2
+summary(mr_tib2)
+```
+
+### 2.2 Imputation of the dataset
+
+First, we will make histograms to explore the distribution of the columns.
+
+#### 2.2.1 Histograms of the columns
+```{r}
+# Hist. of WD
+ggplot(data = mr_tib2) + 
+  geom_histogram(mapping = aes(x=WD),binwidth = 10)
+```
+
+
+```{r}
+# Hist. of WSPD
+ggplot(data = mr_tib2) + 
+  geom_histogram(mapping = aes(x=WSPD),binwidth = 0.5)
+```
+
+
+```{r}
+# Hist. of GST
+ggplot(data = mr_tib2) + 
+  geom_histogram(mapping = aes(x=GST),binwidth = 0.5)
+```
+
+
+```{r}
+# Hist. of ATMP
+ggplot(data = mr_tib2) + 
+  geom_histogram(mapping = aes(x=ATMP),binwidth = 0.5)
+```
+
+
+```{r}
+# Hist. of WTMP
+ggplot(data = mr_tib2) + 
+  geom_histogram(mapping = aes(x=WTMP),binwidth = 0.5)
+```
+
+
+#### 2.2.2 Conduct the imputation 
+According to the plots above, we will replace NA with median.
+
+```{r}
+mr_tib2[is.na(mr_tib2$WD),"WD"] =
+  median(mr_tib2$WD,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$WSPD),"WSPD"] =
+  median(mr_tib2$WSPD,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$GST),"GST"] =
+  median(mr_tib2$GST,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$ATMP),"ATMP"] =
+  median(mr_tib2$ATMP,na.rm = T)
+
+mr_tib2[is.na(mr_tib2$WTMP),"WTMP"] =
+  median(mr_tib2$WTMP,na.rm = T)
+```
+
+Then we will use the summary() to check if NA still existed.
+```{r}
+# Check the NA
+summary(mr_tib2)
+```
+The summary indicates that no existed NA, the data can be used for further analysis.
+
+### 2.3 Filter the dataset
+
+Make data type transformation on columns for Year, Month, Day and Hour. 
+
+```{r message=FALSE}
+for (i in 1:4)
+  suppressMessages(
+    mr_tib2[,i] <- as.integer(unlist(mr_tib2[,i]))
+    )
+
+# Solve the error caused by unknown reasons
+mr_tib2$YYYY[which(mr_tib2$YYYY==3899)] = 1999
+```
+
+
+```{r message=FALSE}
+# Load the packages
+library(lubridate)
+library(ggpubr)
+```
+
+Sort the dataset by quarter:
+```{r}
+mr_tib2['date']<-paste(mr_tib2$YYYY,mr_tib2$MM,mr_tib2$DD,mr_tib2$hh,sep="-")
+mr_tib2['date']<-ymd_h(mr_tib2$date)
+q1<-subset(mr_tib2,quarter(mr_tib2$date)==1)
+q2<-subset(mr_tib2,quarter(mr_tib2$date)==2)
+q3<-subset(mr_tib2,quarter(mr_tib2$date)==3)
+q4<-subset(mr_tib2,quarter(mr_tib2$date)==4)
+```
+
+### 2.4 Explore the pattern
+
+#### 2.4.1 Air temperature pattern
+
+Calculate each quarter's mean air temperature by year, and plot the patterns:
+```{r message=FALSE}
+# Quarter 1
+meanq1<-aggregate(ATMP~YYYY,data=q1, mean)
+q1reg<-ggplot(data = meanq1) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temp. of Q1")
+
+# Quarter 2
+meanq2<-aggregate(ATMP~YYYY,data=q2, mean)
+q2reg<-ggplot(data = meanq2) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temp. of Q2")
+
+# Quarter 3
+q3reg<-meanq3<-aggregate(ATMP~YYYY,data=q3, mean)
+q3reg<-ggplot(data = meanq3) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temp. of Q3")
+
+# Quarter 4
+q4reg<-meanq4<-aggregate(ATMP~YYYY,data=q4, mean)
+q4reg<-ggplot(data = meanq4) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temp. of Q4")
+
+# Put the plots together
+ggarrange(q1reg,q2reg,q3reg,q4reg,ncol=2,nrow=2)
+```
+
+Sort the dataset by month, calculate each month's mean air temperature by year, and plot the patterns:
+```{r message=FALSE}
+mname<-str_c('m',1:12)
+mmean<-str_c('meanm',1:12)
+mreg<-str_c('m',1:12,'reg')
+
+for(i in 1:12){
+  assign(mname[i],subset(mr_tib2,month(mr_tib2$date)==i))
+  assign(mmean[i],aggregate(ATMP~YYYY,data=get(mname[i]), mean))
+  assign(mreg[i],(ggplot(data = get(mmean[i])) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle(paste("Average Air Temp. of M",i,sep=""))))
+}
+```
+
+```{r message=FALSE}
+# Put the plots together
+ggarrange(m1reg,m2reg,m3reg,m4reg,ncol=2,nrow=2)
+ggarrange(m5reg,m6reg,m7reg,m8reg,ncol=2,nrow=2)
+ggarrange(m9reg,m10reg,m11reg,m12reg,ncol=2,nrow=2)
+```
+
+#### 2.4.2 Water temperature pattern
+
+Calculate each quarter's mean water temperature by year, and plot the patterns:
+```{r message=FALSE}
+# Quarter 1
+meanq1_w<-aggregate(WTMP~YYYY,data=q1, mean)
+q1reg_w<-ggplot(data = meanq1_w) + 
+  geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
+  ggtitle("Average Water Temp. of Q1")
+
+# Quarter 2
+meanq2_w<-aggregate(WTMP~YYYY,data=q2, mean)
+q2reg_w<-ggplot(data = meanq2_w) + 
+  geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
+  ggtitle("Average Water Temp. of Q2")
+
+# Quarter 3
+meanq3_w<-aggregate(WTMP~YYYY,data=q3, mean)
+q3reg_w<-ggplot(data = meanq3_w) + 
+  geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
+  ggtitle("Average Water Temp. of Q3")
+
+# Quarter 4
+meanq4_w<-aggregate(WTMP~YYYY,data=q4, mean)
+q4reg_w<-ggplot(data = meanq4_w) + 
+  geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
+  ggtitle("Average Water Temp. of Q4")
+
+# Put the plots together
+ggarrange(q1reg_w,q2reg_w,q3reg_w,q4reg_w,ncol=2,nrow=2)
+```
+
+Sort the dataset by month, calculate each month's mean air temperature by year, and plot the patterns:
+```{r}
+mmean_w<-str_c('meanm_w',1:12)
+mreg_w<-str_c('m',1:12,'reg_w')
+
+for(i in 1:12){
+  assign(mname[i],subset(mr_tib2,month(mr_tib2$date)==i))
+  assign(mmean_w[i],aggregate(WTMP~YYYY,data=get(mname[i]), mean))
+  assign(mreg_w[i],(ggplot(data = get(mmean_w[i])) + 
+  geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
+  ggtitle(paste("Aver. Water Temp. of M",i,sep=""))))
+}
+```
+
+```{r message=FALSE}
+# Put the plots together
+ggarrange(m1reg_w,m2reg_w,m3reg_w,m4reg_w,ncol=2,nrow=2)
+ggarrange(m5reg_w,m6reg_w,m7reg_w,m8reg_w,ncol=2,nrow=2)
+```
+
+## 3 Model Analysis
+
+Based on the result of pattern exploration in previous part, we are going to use linear model to fit the model between temperature and year.
+
+### 3.1 Air temperature
+```{r}
+# Fit the model of Air Temp.
+air_q1 = lm(ATMP~YYYY,data = meanq1)
+air_q2 = lm(ATMP~YYYY,data = meanq2)
+air_q3 = lm(ATMP~YYYY,data = meanq3)
+air_q4 = lm(ATMP~YYYY,data = meanq4)
+```
+
+```{r}
+data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
+           Coef_AirTemp=c(air_q1$coefficients[2],
+                          air_q2$coefficients[2],
+                          air_q3$coefficients[2],
+                          air_q4$coefficients[2])
+           )
+
+```
+
+### 3.2 Water Temperature
+```{r}
+# Fit the model of Air Temp.
+water_q1 = lm(WTMP~YYYY,data = meanq1_w)
+water_q2 = lm(WTMP~YYYY,data = meanq2_w)
+water_q3 = lm(WTMP~YYYY,data = meanq3_w)
+water_q4 = lm(WTMP~YYYY,data = meanq4_w)
+```
+
+```{r}
+data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
+           Coef_WaterTemp=c(water_q1$coefficients[2],
+                          water_q2$coefficients[2],
+                          water_q3$coefficients[2],
+                          water_q4$coefficients[2])
+           )
+```
+
+### 3.3 Conclusion
+
+From the result, we can have the conclusion that as years goes by, the air and water temperature are getting higher, which would be an indicator of climate change.
