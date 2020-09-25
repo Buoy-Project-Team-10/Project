@@ -1,5 +1,5 @@
 ---
-title: "Buoy Project"
+title: "Buoy Project Report-Group 10"
 author: "Chenghao Meng,Yinfeng Zhou and Feng Fan"
 date: "2020/9/25"
 output: html_document
@@ -399,7 +399,7 @@ for(i in 1:12){
   assign(mmean_w[i],aggregate(WTMP~YYYY,data=get(mname[i]), mean))
   assign(mreg_w[i],(ggplot(data = get(mmean_w[i])) + 
   geom_smooth(mapping = aes(x=YYYY,y=WTMP)) + 
-  ggtitle(paste("Aver. Water Temp. of M",i,sep=""))))
+  ggtitle(paste("Average Water Temp. of M",i,sep=""))))
 }
 ```
 
@@ -423,10 +423,10 @@ First, we use ACF function to visualize the stationarity of the air and water te
 ```{r}
 # ACF of air temp.
 par(mfrow=c(2,2))
-acf(meanq1$ATMP,xlab="Lag-Air Temp. Q1")
-acf(meanq2$ATMP,xlab="Lag-Air Temp. Q2")
-acf(meanq3$ATMP,xlab="Lag-Air Temp. Q3")
-acf(meanq4$ATMP,xlab="Lag-Air Temp. Q4")
+acf(meanq1$ATMP,main="ACF-Air Temp. Q1")
+acf(meanq2$ATMP,main="ACF-Air Temp. Q2")
+acf(meanq3$ATMP,main="ACF-Air Temp. Q3")
+acf(meanq4$ATMP,main="ACF-Air Temp. Q4")
 ```
 
 From the ACF plots above, we can see that the pattern of air tmperature performs like white noise, so we can conclude that the time series of air temperature is stationary.
@@ -434,10 +434,10 @@ From the ACF plots above, we can see that the pattern of air tmperature performs
 ```{r}
 # ACF of water temp.
 par(mfrow=c(2,2))
-acf(meanq1_w$WTMP,xlab="Lag-Water Temp. Q1")
-acf(meanq2_w$WTMP,xlab="Lag-Water Temp. Q2")
-acf(meanq3_w$WTMP,xlab="Lag-Water Temp. Q3")
-acf(meanq4_w$WTMP,xlab="Lag-Water Temp. Q4")
+acf(meanq1_w$WTMP,main="ACF-Water Temp. Q1")
+acf(meanq2_w$WTMP,main="ACF-Water Temp. Q2")
+acf(meanq3_w$WTMP,main="ACF-Water Temp. Q3")
+acf(meanq4_w$WTMP,main="ACF-Water Temp. Q4")
 ```
 
 From the ACF plots above, we can see that the pattern of water tmperature performs like white noise, so we can conclude that the time series of water temperature is stationary.
