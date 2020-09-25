@@ -411,7 +411,35 @@ ggarrange(m5reg_w,m6reg_w,m7reg_w,m8reg_w,ncol=2,nrow=2)
 
 Based on the result of pattern exploration in previous part, we are going to use linear model to fit the model between temperature and year.
 
-### 3.1 Air temperature
+### 3.1 Stationarity Test
+
+First, we use ACF function to visualize the stationarity of the air and water temperature.
+```{r}
+# ACF of air temp.
+par(mfrow=c(2,2))
+acf(meanq1$ATMP,xlab="Lag-Air Temp. Q1")
+acf(meanq2$ATMP,xlab="Lag-Air Temp. Q2")
+acf(meanq3$ATMP,xlab="Lag-Air Temp. Q3")
+acf(meanq4$ATMP,xlab="Lag-Air Temp. Q4")
+```
+
+From the ACF plots above, we can see that the pattern of air tmperature performs like white noise, so we can conclude that the time series of air temperature is stationary.
+
+```{r}
+# ACF of water temp.
+par(mfrow=c(2,2))
+acf(meanq1_w$WTMP,xlab="Lag-Water Temp. Q1")
+acf(meanq2_w$WTMP,xlab="Lag-Water Temp. Q2")
+acf(meanq3_w$WTMP,xlab="Lag-Water Temp. Q3")
+acf(meanq4_w$WTMP,xlab="Lag-Water Temp. Q4")
+```
+
+From the ACF plots above, we can see that the pattern of water tmperature performs like white noise, so we can conclude that the time series of water temperature is stationary.
+
+Then we can strat to bulid models on those two features.
+
+### 3.2 Air temperature
+
 ```{r}
 # Fit the model of Air Temp.
 air_q1 = lm(ATMP~YYYY,data = meanq1)
@@ -430,7 +458,7 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 
 ```
 
-### 3.2 Water Temperature
+### 3.3 Water Temperature
 ```{r}
 # Fit the model of Air Temp.
 water_q1 = lm(WTMP~YYYY,data = meanq1_w)
@@ -448,6 +476,6 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
            )
 ```
 
-### 3.3 Conclusion
+### 3.4 Conclusion
 
 From the result, we can have the conclusion that as years goes by, the air and water temperature are getting higher, which would be an indicator of climate change.
