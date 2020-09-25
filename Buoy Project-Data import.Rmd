@@ -40,9 +40,12 @@ for (i in 1:n){
 ```{r message=TRUE}
 # Bind the data from 1987-1999
 
-for (i in 1988:1998)
-  mr_pre = rbind(mr1987,get(str_c("mr",i,sep = "")))
-
+for (i in 1987:1998){
+  if (i==1987)
+    mr_pre<-mr1987
+  else
+    mr_pre = rbind(mr_pre,get(str_c("mr",i,sep = "")))
+}
 # Change the row name
 names(mr_pre)[names(mr_pre) == "YY"] = "YYYY"
 
@@ -56,9 +59,12 @@ head(mr87_99)
 ## 1.2 Bind the data from 2000 to 2006
 
 ```{r}
-for (i in 2001:2004)
-  mr00_06 = rbind(mr2000,get(str_c("mr",i,sep = "")))
-
+for (i in 2000:2004){
+    if (i==2000)
+    mr_00_06<-mr2000
+    else
+    mr00_06 = rbind(mr00_06,get(str_c("mr",i,sep = "")))
+}
 head(mr00_06)
 ```
 
@@ -72,9 +78,12 @@ tail(mr00_06)
 ## 1.3 Bind the data from 2012 to 2019
 
 ```{r}
-for (i in 2012:2019)
-  mr11_19 = rbind(mr2011,get(str_c("mr",i,sep = "")))
-
+for (i in 2011:2019){
+  if(i==2011)
+    mr11_19<-mr2011
+  else
+    mr11_19 = rbind(mr11_19,get(str_c("mr",i,sep = "")))
+}
 names(mr11_19)[names(mr11_19) == "#YY"] = "YYYY"
 mr11_19 = subset(mr11_19, select = -c(mm))
 mr11_19 = mr11_19[-1,] # Delete the row with #YY etc.
@@ -271,36 +280,72 @@ for (i in 1:4)
 ```
 
 ```{r}
-# Fix the unknown error
 mr_tib2$YYYY[which(mr_tib2$YYYY==3899)] = 1999
 ```
 
+Sort the dataset by quarter:
 ```{r}
-library(lubridate)
+mr_tib2['date']<-paste(mr_tib2$YYYY,mr_tib2$MM,mr_tib2$DD,mr_tib2$hh,sep="-")
+mr_tib2['date']<-ymd_h(mr_tib2$date)
+q1<-subset(mr_tib2,quarter(mr_tib2$date)==1)
+q2<-subset(mr_tib2,quarter(mr_tib2$date)==2)
+q3<-subset(mr_tib2,quarter(mr_tib2$date)==3)
+q4<-subset(mr_tib2,quarter(mr_tib2$date)==4)
+
+```
+Calculate each quarter's mean air temperature by year, and plot the patterns:
+```{r}
+#QUARTER 1
+meanq1<-aggregate(ATMP~YYYY,data=q1, mean)
+q1reg<-ggplot(data = meanq1) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temperature of Q1")
+
+#QUARTER 2
+meanq2<-aggregate(ATMP~YYYY,data=q2, mean)
+q2reg<-ggplot(data = meanq2) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temperature of Q2")
+
+#QUARTER 3
+q3reg<-meanq3<-aggregate(ATMP~YYYY,data=q3, mean)
+q3reg<-ggplot(data = meanq3) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temperature of Q3")
+
+#QUARter 4
+q4reg<-meanq4<-aggregate(ATMP~YYYY,data=q4, mean)
+q4reg<-ggplot(data = meanq4) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle("Average Air Temperature of Q4")
+ggarrange(q1reg,q2reg,q3reg,q4reg,ncol=2,nrow=2)
+
 ```
 
-Use lubridate to transform YYYY, MM into datetime format.
-```{r}
-mr_tib3 = mr_tib2 %>% 
-  mutate(datetime = make_datetime(YYYY,MM))
-```
 
-```{r}
-# Reorganize the tibble
-mr_tib3 = mr_tib3 %>% 
-  select(datetime,WD,WSPD,GST,ATMP,WTMP)
-```
 
-Use group_by to get the average of each column in monthly frequency.
-```{r}
-buoy = mr_tib3 %>% 
-  group_by(datetime) %>% 
-  summarise(mean_WD=mean(WD), mean_WSPD=mean(WSPD),
-            mean_GST=mean(GST),mean_ATMP=mean(ATMP),
-            mean_WTMP=mean(WTMP))
-```
 
-```{r}
-head(buoy)
-```
 
+Sort the dataset by month, calculate each month's mean air temperature by year, and plot the patterns:
+```{r}
+mname<-str_c('m',1:12)
+mmean<-str_c('meanm',1:12)
+mreg<-str_c('m',1:12,'reg')
+
+for(i in 1:12){
+  assign(mname[i],subset(mr_tib2,month(mr_tib2$date)==i))
+  assign(mmean[i],aggregate(ATMP~YYYY,data=get(mname[i]), mean))
+  assign(mreg[i],(ggplot(data = get(mmean[i])) + 
+  geom_smooth(mapping = aes(x=YYYY,y=ATMP)) + 
+  ggtitle(paste("Average Air Temperature of M",i,sep=""))))
+}
+ggarrange(m1reg,m2reg,m3reg,m4reg,ncol=2,nrow=2)
+ggarrange(m5reg,m6reg,m7reg,m8reg,ncol=2,nrow=2)
+ggarrange(m9reg,m10reg,m11reg,m12reg,ncol=2,nrow=2)
+
+
+
+
+
+
+```
