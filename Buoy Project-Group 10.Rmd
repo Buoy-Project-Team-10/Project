@@ -483,8 +483,26 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
            )
 ```
 
-### 3.4 Conclusion
+### 3.4 Conclusion and Limitations
 
-From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. 
+From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. 
+
+However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. 
 
 Also, the reason behind the variation of average air temperature is valuable to be digged in. 
+
+## 4 Reference and Acknowledge
+
+### 4.1 References
+
+[1]Hadley Wickham, Romain François, Lionel Henry, Kirill Müller.(2020) dplyr: A Grammar of Data Manipulation, version 1.0.2
+
+[2]Hadley Wickham.(2019) tidyverse: Easily Install and Load the 'Tidyverse', version 1.3.0
+
+[3]Alboukadel Kassambara.(2020) ggpubr: 'ggplot2' Based Publication Ready Plots, version 0.4.0
+
+[4]Tripti Dimri, Shamshad Ahmad and Mohammad Sharif. (2020) Time series analysis of climate variables using seasonal ARIMA approach. Journal of Earth System Science. 149 (2020) 
+
+### 4.2 Acknowledgement
+
+We sincerely thank Prof.Haviland for helping us to obtain open source data and provide guidance for our project. 
