@@ -37,7 +37,7 @@ for (i in 1:n){
 
 ## 1.1 Bind the data from 1987-1999
 
-```{r}
+```{r message=TRUE}
 # Bind the data from 1987-1999
 
 for (i in 1988:1998)
@@ -152,7 +152,7 @@ Now we finish the data collection.
 
 Before making summary of the data, data type of certain columns should be transformed to numeric data.
 
-```{r}
+```{r message=FALSE}
 # Data type transformation
 for (i in 5:ncol(mr))
   suppressMessages(
@@ -261,8 +261,15 @@ The summary indicates that no existed NA, the data can be used for further analy
 
 ## 2.3 Filter the dataset
 
-Make data type transformation to Year, Month, Day and Hour. 
-```{r}
+Make data type transformation on columns for Year, Month, Day and Hour. 
+```{r message=FALSE}
+for (i in 1:4)
+  suppressMessages(
+    mr_tib2[,i] <- as.integer(unlist(mr_tib2[,i]))
+    )
+```
 
+```{r}
+mr_tib2$YYYY[which(mr_tib2$YYYY==3899)] = 1999
 ```
 
