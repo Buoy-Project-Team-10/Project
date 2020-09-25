@@ -262,6 +262,7 @@ The summary indicates that no existed NA, the data can be used for further analy
 ## 2.3 Filter the dataset
 
 Make data type transformation on columns for Year, Month, Day and Hour. 
+
 ```{r message=FALSE}
 for (i in 1:4)
   suppressMessages(
@@ -270,6 +271,36 @@ for (i in 1:4)
 ```
 
 ```{r}
+# Fix the unknown error
 mr_tib2$YYYY[which(mr_tib2$YYYY==3899)] = 1999
+```
+
+```{r}
+library(lubridate)
+```
+
+Use lubridate to transform YYYY, MM into datetime format.
+```{r}
+mr_tib3 = mr_tib2 %>% 
+  mutate(datetime = make_datetime(YYYY,MM))
+```
+
+```{r}
+# Reorganize the tibble
+mr_tib3 = mr_tib3 %>% 
+  select(datetime,WD,WSPD,GST,ATMP,WTMP)
+```
+
+Use group_by to get the average of each column in monthly frequency.
+```{r}
+buoy = mr_tib3 %>% 
+  group_by(datetime) %>% 
+  summarise(mean_WD=mean(WD), mean_WSPD=mean(WSPD),
+            mean_GST=mean(GST),mean_ATMP=mean(ATMP),
+            mean_WTMP=mean(WTMP))
+```
+
+```{r}
+head(buoy)
 ```
 
