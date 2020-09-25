@@ -355,6 +355,8 @@ ggarrange(m5reg,m6reg,m7reg,m8reg,ncol=2,nrow=2)
 ggarrange(m9reg,m10reg,m11reg,m12reg,ncol=2,nrow=2)
 ```
 
+  From the plots listed above, it is shown that the average air temperature of each quarter in a year all increased throughout the past 30 years. Though by month the patterns are more variable, generally they all had an increasing tendency. 
+
 #### 2.4.2 Water temperature pattern
 
 Calculate each quarter's mean water temperature by year, and plot the patterns:
@@ -407,6 +409,8 @@ ggarrange(m1reg_w,m2reg_w,m3reg_w,m4reg_w,ncol=2,nrow=2)
 ggarrange(m5reg_w,m6reg_w,m7reg_w,m8reg_w,ncol=2,nrow=2)
 ```
 
+  It is very interesting to look at the plot of water temperature. The average water temperature of Q3 is shown that there was a drastic decrease  since 2010, while compared to air temperature, there was a drastic increase in quarter 3 since 2010. However, in other quarters of the year, air temperature and water temperature didn't show a significant negative correlation. This might leads to further exploration in the variation of a
+
 ## 3 Model Analysis
 
 Based on the result of pattern exploration in previous part, we are going to use linear model to fit the model between temperature and year.
@@ -431,6 +435,7 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 ```
 
 ### 3.2 Water Temperature
+ir temperature and the correlation with water temperature.
 ```{r}
 # Fit the model of Air Temp.
 water_q1 = lm(WTMP~YYYY,data = meanq1_w)
@@ -450,4 +455,4 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 
 ### 3.3 Conclusion
 
-From the result, we can have the conclusion that as years goes by, the air and water temperature are getting higher, which would be an indicator of climate change.
+From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. Also, the reason behind the variation of average air temperature is valuable to be digged in. 
