@@ -423,10 +423,17 @@ First, we use ACF function to visualize the stationarity of the air and water te
 ```{r}
 # ACF of air temp.
 par(mfrow=c(2,2))
+<<<<<<< HEAD
 acf(meanq1$ATMP,main="ACF-Air Temp. Q1")
 acf(meanq2$ATMP,main="ACF-Air Temp. Q2")
 acf(meanq3$ATMP,main="ACF-Air Temp. Q3")
 acf(meanq4$ATMP,main="ACF-Air Temp. Q4")
+=======
+acf(meanq1$ATMP,xlab="Lag-Air Temp. Q1")
+acf(meanq2$ATMP,xlab="Lag-Air Temp. Q2")
+acf(meanq3$ATMP,xlab="Lag-Air Temp. Q3")
+acf(meanq4$ATMP,xlab="Lag-Air Temp. Q4")
+>>>>>>> 153a2f4d2a4a89fd98971e75f396329ba26881e4
 ```
 
 From the ACF plots above, we can see that the pattern of air tmperature performs like white noise, so we can conclude that the time series of air temperature is stationary.
@@ -434,17 +441,29 @@ From the ACF plots above, we can see that the pattern of air tmperature performs
 ```{r}
 # ACF of water temp.
 par(mfrow=c(2,2))
+<<<<<<< HEAD
 acf(meanq1_w$WTMP,main="ACF-Water Temp. Q1")
 acf(meanq2_w$WTMP,main="ACF-Water Temp. Q2")
 acf(meanq3_w$WTMP,main="ACF-Water Temp. Q3")
 acf(meanq4_w$WTMP,main="ACF-Water Temp. Q4")
+=======
+acf(meanq1_w$WTMP,xlab="Lag-Water Temp. Q1")
+acf(meanq2_w$WTMP,xlab="Lag-Water Temp. Q2")
+acf(meanq3_w$WTMP,xlab="Lag-Water Temp. Q3")
+acf(meanq4_w$WTMP,xlab="Lag-Water Temp. Q4")
+>>>>>>> 153a2f4d2a4a89fd98971e75f396329ba26881e4
 ```
 
 From the ACF plots above, we can see that the pattern of water tmperature performs like white noise, so we can conclude that the time series of water temperature is stationary.
 
 Then we can strat to bulid models on those two features.
 
+<<<<<<< HEAD
 ### 3.2 Air Temperature
+=======
+### 3.2 Air temperature
+
+>>>>>>> 153a2f4d2a4a89fd98971e75f396329ba26881e4
 ```{r}
 # Fit the model of Air Temp.
 air_q1 = lm(ATMP~YYYY,data = meanq1)
@@ -465,7 +484,10 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 ```
 
 ### 3.3 Water Temperature
+<<<<<<< HEAD
 
+=======
+>>>>>>> 153a2f4d2a4a89fd98971e75f396329ba26881e4
 ```{r}
 # Fit the model of Air Temp.
 water_q1 = lm(WTMP~YYYY,data = meanq1_w)
@@ -484,7 +506,10 @@ data.frame(Quarter=c("Q1","Q2","Q3","Q4"),
 ```
 
 ### 3.4 Conclusion
+<<<<<<< HEAD
 
 From the plots shown above, the average air temperature over these 30 years did show an increasing tendency, no matter in quarterly scale or monthly scale. However, it seems that further information is still to be interpreted and explored, since we found out some interesting correlation between average water temperature and average air temperature. 
+=======
+>>>>>>> 153a2f4d2a4a89fd98971e75f396329ba26881e4
 
 Also, the reason behind the variation of average air temperature is valuable to be digged in. 
